@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>预出库方案详情 - ProInventory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #c33;
+        }
+        
+        .info-section {
+            margin-bottom: 30px;
+        }
+        
+        .info-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 5px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-item strong {
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .info-item span {
+            color: #666;
+        }
+        
+        .items-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .item-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid #28a745;
+        }
+        
+        .item-card:last-child {
+            margin-bottom: 0;
+        }
+        
+        .item-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .item-details {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        
+        .item-details div {
+            margin-bottom: 3px;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #eee;
+        }
+        
+        .qr-info {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .qr-info .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ProInventory</h1>
+            <p>预出库方案详情</p>
+        </div>
+        
+        <div class="content">
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>正在加载预出库方案信息...</p>
+            </div>
+            
+            <div id="error" class="error" style="display: none;">
+                <h3>加载失败</h3>
+                <p id="errorMessage"></p>
+            </div>
+            
+            <div id="content" style="display: none;">
+                <div class="qr-info">
+                    <div class="icon">📱</div>
+                    <p>通过扫描二维码查看此预出库方案</p>
+                </div>
+                
+                <div class="info-section">
+                    <h2>基本信息</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <strong>方案名称</strong>
+                            <span id="designName">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>创建者</strong>
+                            <span id="creator">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>创建时间</strong>
+                            <span id="designDate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>演出信息</strong>
+                            <span id="eventInfo">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>演出地点</strong>
+                            <span id="eventLocation">-</span>
+                        </div>
+                        <div class="info-item">
+                            <strong>演出时间</strong>
+                            <span id="eventDates">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-section">
+                    <h2>物品清单</h2>
+                    <div class="items-section">
+                        <div id="itemsList">
+                            <!-- 物品列表将在这里动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>ProInventory 预出库管理系统</p>
+            <p>扫描时间: <span id="scanTime"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // CloudKit 配置
+        const CloudKit = window.CloudKit;
+        const container = CloudKit.getDefaultContainer();
+        
+        // 设置扫描时间
+        document.getElementById('scanTime').textContent = new Date().toLocaleString('zh-CN');
+        
+        // 从URL参数获取条形码
+        function getBarcode() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('barcode');
+        }
+        
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // 格式化日期范围
+        function formatDateRange(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            return `${start.toLocaleDateString('zh-CN')} - ${end.toLocaleDateString('zh-CN')}`;
+        }
+        
+        // 显示错误信息
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+        }
+        
+        // 显示内容
+        function showContent(design) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            
+            // 填充基本信息
+            document.getElementById('designName').textContent = design.name || '-';
+            document.getElementById('creator').textContent = design.creator || '-';
+            document.getElementById('designDate').textContent = formatDate(design.designDate);
+            document.getElementById('eventInfo').textContent = design.eventInfo || '-';
+            document.getElementById('eventLocation').textContent = design.eventLocation || '-';
+            document.getElementById('eventDates').textContent = formatDateRange(design.eventStartDate, design.eventEndDate);
+            
+            // 填充物品列表
+            const itemsList = document.getElementById('itemsList');
+            if (design.items && design.items.length > 0) {
+                // 按物品名称分组统计
+                const groupedItems = {};
+                design.items.forEach(item => {
+                    const key = `${item.inventory.name}|${item.inventory.brand}|${item.inventory.model}`;
+                    if (!groupedItems[key]) {
+                        groupedItems[key] = {
+                            name: item.inventory.name,
+                            brand: item.inventory.brand,
+                            model: item.inventory.model,
+                            count: 0
+                        };
+                    }
+                    groupedItems[key].count++;
+                });
+                
+                // 生成物品卡片
+                Object.values(groupedItems).forEach(item => {
+                    const itemCard = document.createElement('div');
+                    itemCard.className = 'item-card';
+                    itemCard.innerHTML = `
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-details">
+                            <div><strong>品牌:</strong> ${item.brand}</div>
+                            <div><strong>型号:</strong> ${item.model}</div>
+                            <div><strong>数量:</strong> ${item.count} 件</div>
+                        </div>
+                    `;
+                    itemsList.appendChild(itemCard);
+                });
+            } else {
+                itemsList.innerHTML = '<p style="text-align: center; color: #666;">暂无物品信息</p>';
+            }
+        }
+        
+        // 从CloudKit获取预出库方案数据
+        async function fetchPreOutboundDesign(barcode) {
+            try {
+                // 查询CloudKit数据库
+                const query = {
+                    recordType: 'PreOutboundDesign',
+                    filterBy: [{
+                        fieldName: 'barcode',
+                        comparator: 'EQUALS',
+                        fieldValue: { value: barcode }
+                    }]
+                };
+                
+                const response = await container.publicCloudDatabase.performQuery(query);
+                
+                if (response.records && response.records.length > 0) {
+                    const record = response.records[0];
+                    
+                    // 解析物品数据
+                    let items = [];
+                    if (record.fields.items && record.fields.items.value) {
+                        try {
+                            items = JSON.parse(record.fields.items.value);
+                        } catch (e) {
+                            console.error('解析物品数据失败:', e);
+                        }
+                    }
+                    
+                    // 构建设计对象
+                    const design = {
+                        name: record.fields.name?.value || '',
+                        creator: record.fields.creator?.value || '',
+                        designDate: record.fields.designDate?.value || new Date().toISOString(),
+                        eventInfo: record.fields.eventInfo?.value || '',
+                        eventLocation: record.fields.eventLocation?.value || '',
+                        eventStartDate: record.fields.eventStartDate?.value || new Date().toISOString(),
+                        eventEndDate: record.fields.eventEndDate?.value || new Date().toISOString(),
+                        items: items
+                    };
+                    
+                    return design;
+                } else {
+                    throw new Error('未找到对应的预出库方案');
+                }
+            } catch (error) {
+                console.error('获取预出库方案失败:', error);
+                throw error;
+            }
+        }
+        
+        // 初始化页面
+        async function init() {
+            const barcode = getBarcode();
+            
+            if (!barcode) {
+                showError('缺少条形码参数');
+                return;
+            }
+            
+            try {
+                const design = await fetchPreOutboundDesign(barcode);
+                showContent(design);
+            } catch (error) {
+                showError(`加载失败: ${error.message}`);
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+    
+    <!-- CloudKit Web SDK -->
+    <script src="https://cdn.apple-cloudkit.com/ck/2/cloudkit.js"></script>
+</body>
+</html>
