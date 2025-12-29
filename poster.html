@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>QLabHUD 宣传图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        html {
+            margin: 0;
+            padding: 0;
+        }
+
+        .poster {
+            width: 100%;
+            max-width: 430px;
+            min-height: 100vh;
+            height: auto;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 50px 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            margin: 0 auto;
+        }
+
+        /* 背景装饰 */
+        .poster::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -30%;
+            width: 160%;
+            height: 160%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .poster::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            right: -30%;
+            width: 160%;
+            height: 160%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            min-height: 600px;
+        }
+
+        /* 顶部区域 */
+        .header {
+            text-align: center;
+        }
+
+        .introducing {
+            font-size: 14px;
+            color: #60a5fa;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .logo-text {
+            font-size: 72px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 20px;
+            letter-spacing: -0.04em;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .tagline {
+            font-size: 22px;
+            color: #94a3b8;
+            font-weight: 400;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #64748b;
+            font-weight: 300;
+        }
+
+        /* 中间功能区域 */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            flex: 1;
+            align-content: center;
+        }
+
+        .feature-item {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+            color: #60a5fa;
+            line-height: 1;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            color: #ffffff;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .feature-desc {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        /* 底部信息 */
+        .footer {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .info {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+
+        .contact {
+            font-size: 12px;
+            color: #64748b;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            border-radius: 6px;
+            font-size: 12px;
+            color: #cbd5e1;
+            margin: 0 4px;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+            }
+            .poster {
+                box-shadow: none;
+            }
+            .screenshot-hint {
+                display: none;
+            }
+        }
+
+        /* 截图提示 */
+        .screenshot-hint {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(15, 23, 42, 0.95);
+            color: #60a5fa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            font-size: 10px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-width: 130px;
+        }
+
+        .screenshot-hint strong {
+            color: #ffffff;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 11px;
+        }
+
+        @media (max-width: 480px) {
+            .poster {
+                padding: 40px 25px;
+            }
+
+            .introducing {
+                font-size: 12px;
+                margin-bottom: 15px;
+            }
+
+            .logo-text {
+                font-size: 64px;
+            }
+
+            .tagline {
+                font-size: 20px;
+            }
+
+            .main-content {
+                min-height: 500px;
+            }
+
+            .features {
+                gap: 15px;
+            }
+
+            .feature-item {
+                padding: 25px 15px;
+            }
+
+            .screenshot-hint {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="screenshot-hint">
+        <strong>📸 Screenshot</strong>
+        <div>iPhone: Side + Volume Up<br>Or use Control Center</div>
+    </div>
+    <div class="poster">
+        <div class="content">
+            <div class="main-content">
+                <!-- 顶部 -->
+                <div class="header">
+                    <div class="introducing">INTRODUCING</div>
+                    <div class="logo-text">QLabHUD</div>
+                    <div class="tagline">Professional QLab Status Monitor</div>
+                    <div class="subtitle">
+                        <span class="badge">macOS</span>
+                        <span class="badge">Real-time</span>
+                        <span class="badge">OSC Protocol</span>
+                    </div>
+                </div>
+
+                <!-- 功能展示 -->
+                <div class="features">
+                <div class="feature-item">
+                    <span class="feature-icon">▶</span>
+                    <div class="feature-title">PLAYING CUE</div>
+                    <div class="feature-desc">Real-time playback status</div>
+                </div>
+
+                <div class="feature-item">
+                    <span class="feature-icon">⏭</span>
+                    <div class="feature-title">NEXT CUE</div>
+                    <div class="feature-desc">Upcoming cue preview</div>
+                </div>
+
+                <div class="feature-item">
+                    <span class="feature-icon">⏱</span>
+                    <div class="feature-title">TIMER</div>
+                    <div class="feature-desc">Stopwatch & system time</div>
+                </div>
+
+                <div class="feature-item">
+                    <span class="feature-icon">🎨</span>
+                    <div class="feature-title">CUSTOMIZE</div>
+                    <div class="feature-desc">Rich customization options                    </div>
+                </div>
+            </div>
+            </div>
+
+            <!-- 底部信息 -->
+            <div class="footer">
+                <div class="info">Version 1.0 · By 阿田仔</div>
+                <div class="contact">
+                    <div class="contact-item">
+                        <span>WeChat</span>
+                        <span style="color: #60a5fa;">MilokoTian</span>
+                    </div>
+                    <div class="contact-item">
+                        <span>Email</span>
+                        <span style="color: #60a5fa;">363586166@qq.com</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载完成后提示
+        window.addEventListener('load', function() {
+            console.log('✅ Poster loaded, optimized for iPhone');
+            console.log('📸 iPhone Screenshot: Side Button + Volume Up');
+        });
+
+        // 阻止缩放（在移动设备上）
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    </script>
+
+</body>
+</html>
+
